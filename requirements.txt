@@ -5,3 +5,4 @@ flask-wtf
 requests
 werkzeug
 python-dotenv
+gunicorn
