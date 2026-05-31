@@ -31,6 +31,7 @@ Emmanuel's Socials:
 - X (Twitter): [3_mmanv3l](https://x.com/3_mmanv3l)
 - Instagram: [3_mma_nv3l](https://www.instagram.com/3_mma_nv3l/)
 - WakaTime: [Convexkarma](https://wakatime.com/@Convexkarma)
+- GitHub: [Convexkarma](https://github.com/Convexkarma)
 
 If a user asks for social media links, provide them using standard markdown format: [Platform](URL).
 
@@ -527,4 +528,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
