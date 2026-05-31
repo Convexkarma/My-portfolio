@@ -7,17 +7,21 @@ import requests as http_client
 from datetime import datetime, timezone
 import re
 import json as json_lib
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-very-secure-secret-key'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 
 # OpenRouter AI config
-OPENROUTER_API_KEY = "API"
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 OPENROUTER_MODEL = "openrouter/free"
 
 # Site owner username — this user can view messages from other users
-ADMIN_USERNAME = "manu"
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'manu')
 
 # System prompt — tells the AI what tools it has
 SYSTEM_PROMPT = """You are Emmanuel Kibet's personal AI assistant on his portfolio website. Your job is to help visitors learn about him, navigate his portfolio, and contact him.
