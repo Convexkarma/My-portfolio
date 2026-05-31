@@ -14,7 +14,13 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+
+# Database: use Render's PostgreSQL (DATABASE_URL) in production, SQLite locally
+database_url = os.getenv('DATABASE_URL', 'sqlite:///users.db')
+# Render gives postgres:// but SQLAlchemy needs postgresql://
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 # OpenRouter AI config
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
