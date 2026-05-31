@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | MyApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .messages-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .messages-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .messages-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #171a20;
+        }
+        .msg-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .msg-card:hover {
+            border-color: #c0c0c0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .msg-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: #171a20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .msg-sender {
+            font-weight: 600;
+            color: #171a20;
+            font-size: 14px;
+        }
+        .msg-time {
+            margin-left: auto;
+            font-size: 12px;
+            color: #aab0b8;
+        }
+        .msg-body {
+            font-size: 14px;
+            color: #393c41;
+            line-height: 1.6;
+            padding-left: 42px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #aab0b8;
+        }
+        .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+
+        @media (max-width: 768px) {
+            .messages-container { padding: 24px 20px; }
+            .messages-header h1 { font-size: 22px; }
+            .msg-body { padding-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu-container">
+            <a href="{{ url_for('home') }}" class="brand-name">Emmanuel Kibet</a>
+            <ul class="nav-lists">
+                <li><a href="{{ url_for('home') }}" class="nav-link" target="_blank" style="color:#22c55e;">View Portfolio</a></li>
+                <li><a href="{{ url_for('dashboard') }}" class="nav-link">← Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}" class="nav-link btn-danger">Log Out</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="messages-container">
+            <div class="messages-header">
+                <h1><svg width="28" height="28" style="display:inline;vertical-align:bottom;margin-right:8px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> {% if is_admin %}Inbox{% else %}Sent Messages{% endif %}</h1>
+            </div>
+
+            {% if messages %}
+                {% for msg in messages %}
+                <div class="msg-card" style="animation-delay: {{ loop.index0 * 0.04 }}s;">
+                    <div class="msg-meta">
+                        <div class="msg-avatar">{{ msg.sender_name[0]|upper }}</div>
+                        <span class="msg-sender">
+                            {% if is_admin %}From: {{ msg.sender_name }}{% else %}To: Site Owner{% endif %}
+                        </span>
+                        <span class="msg-time">{{ msg.created_at.strftime('%b %d, %Y  •  %H:%M UTC') }}</span>
+                    </div>
+                    <div class="msg-body">{{ msg.content }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
+                    <p>{% if is_admin %}No messages yet. Users can send you messages via the AI chat.{% else %}No messages sent yet. Use the AI chat to message the site owner.{% endif %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MyApp</p>
+    </footer>
+</body>
+</html>

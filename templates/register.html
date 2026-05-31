@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | MyApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="page-auth">
+    <header>
+        <div class="menu-container">
+            <a href="{{ url_for('home') }}" class="brand-name">MyApp</a>
+            <ul class="nav-lists">
+                <li><a href="{{ url_for('login') }}" class="nav-link">Log In</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="auth-wrapper">
+            <div class="auth-card">
+                <div class="card-icon"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
+                <h2>Create Account</h2>
+                <p class="subtitle">Join us and get started in seconds</p>
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                    <div class="flash-msg {% if 'successful' in msg.lower() %}success{% endif %}">
+                        {{ msg }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" id="register-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required autocomplete="username" minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Create a strong password" required autocomplete="new-password" minlength="6">
+                        <div class="pw-strength"><div class="pw-strength-bar" id="pw-bar"></div></div>
+                        <p class="pw-hint" id="pw-hint">At least 6 characters</p>
+                    </div>
+                    <button type="submit" id="register-submit" class="btn-submit">Create Account</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const pwInput = document.getElementById('password');
+        const pwBar = document.getElementById('pw-bar');
+        const pwHint = document.getElementById('pw-hint');
+
+        pwInput.addEventListener('input', () => {
+            const val = pwInput.value;
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const pct = (score / 5) * 100;
+            const colors = ['#e12d39', '#f59e0b', '#eab308', '#22c55e', '#171a20'];
+            const labels = ['Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
+
+            pwBar.style.width = pct + '%';
+            pwBar.style.background = colors[Math.max(0, score - 1)] || '#e12d39';
+
+            if (val.length > 0) {
+                pwHint.textContent = labels[Math.max(0, score - 1)] || 'Too short';
+                pwHint.style.color = colors[Math.max(0, score - 1)] || '#e12d39';
+            } else {
+                pwHint.textContent = 'At least 6 characters';
+                pwHint.style.color = '#aab0b8';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In | MyApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="page-auth">
+    <header>
+        <div class="menu-container">
+            <a href="{{ url_for('home') }}" class="brand-name">MyApp</a>
+            <ul class="nav-lists">
+                <li><a href="{{ url_for('login') }}" class="nav-link nav-link--primary">Log In</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="auth-wrapper">
+            <div class="auth-card">
+                <div class="card-icon"><svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg></div>
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Sign in to access your dashboard</p>
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                    <div class="flash-msg {% if 'successful' in msg.lower() or 'logged out' in msg.lower() %}success{% endif %}">
+                        {{ msg }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST" id="login-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" id="login-submit" class="btn-submit">Log In</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p><a href="{{ url_for('home') }}" class="link">Return to Home</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

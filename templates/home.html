@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emmanuel Kibet | Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .portfolio-section {
+            max-width: 1100px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        .hero-layout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        .hero-text { flex: 1; }
+        .hero-image {
+            width: 380px;
+            height: 480px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .terminal-box {
+            background: #171a20;
+            color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .terminal-header {
+            color: #22c55e;
+            font-family: monospace;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        .stack-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .stack-badge {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .card-body { padding: 24px; }
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #171a20; }
+        .card-desc { font-size: 14px; color: #6e727a; line-height: 1.6; margin-bottom: 16px; }
+        .card-link { font-size: 14px; font-weight: 600; color: #171a20; text-decoration: none; }
+        
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-auto-rows: 10px;
+            gap: 16px;
+        }
+        .masonry-item {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f0f2f5;
+        }
+        .masonry-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s;
+        }
+        .masonry-item:hover img {
+            transform: scale(1.05);
+        }
+        /* Spans for masonry variation */
+        .h-20 { grid-row-end: span 20; }
+        .h-25 { grid-row-end: span 25; }
+        .h-30 { grid-row-end: span 30; }
+        
+        /* Lightbox Styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Clickable images cursor */
+        .clickable-img {
+            cursor: zoom-in;
+        }
+
+        @media (max-width: 768px) {
+            .hero-layout { flex-direction: column-reverse; text-align: center; }
+            .hero-image { width: 100%; height: auto; max-height: 400px; }
+            .hero-buttons { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu-container">
+            <a href="{{ url_for('home') }}" class="brand-name">Emmanuel Kibet</a>
+            <ul class="nav-lists">
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#events" class="nav-link">Events</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+                <li style="display:flex; gap:12px; align-items:center; margin-left:8px;">
+                    <a href="https://www.linkedin.com/in/emmanuel-kibet-31848a38b/" target="_blank" title="LinkedIn" style="color:#6e727a; transition:color 0.2s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='#6e727a'"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+                    <a href="https://x.com/3_mmanv3l" target="_blank" title="X" style="color:#6e727a; transition:color 0.2s;" onmouseover="this.style.color='#000'" onmouseout="this.style.color='#6e727a'"><svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                    <a href="https://www.instagram.com/3_mma_nv3l/" target="_blank" title="Instagram" style="color:#6e727a; transition:color 0.2s;" onmouseover="this.style.color='#E4405F'" onmouseout="this.style.color='#6e727a'"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+                    <a href="https://wakatime.com/@Convexkarma" target="_blank" title="WakaTime" style="color:#6e727a; transition:color 0.2s;" onmouseover="this.style.color='#2595ff'" onmouseout="this.style.color='#6e727a'"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.824a9.176 9.176 0 110 18.352 9.176 9.176 0 010-18.352zm-1.2 4.8a.9.9 0 00-.78.45l-2.4 4.2a.9.9 0 001.56.9l2.4-4.2a.9.9 0 00-.78-1.35zm3.6 0a.9.9 0 00-.78.45l-2.4 4.2a.9.9 0 001.56.9l2.4-4.2a.9.9 0 00-.78-1.35z"/></svg></a>
+                </li>
+                <li><a href="{{ url_for('login') }}" class="nav-link nav-link--primary">Admin Login</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="portfolio-section hero-layout" style="margin-top:120px;">
+            <div class="hero-text">
+                <span class="hero-label">Cybersecurity & AI Developer</span>
+                <h1 style="font-size: 48px; font-weight: 700; margin-bottom: 16px; color:#171a20; line-height:1.1;">Building Secure & Intelligent Systems</h1>
+                <p style="font-size: 18px; color: #393c41; line-height: 1.6; margin-bottom: 32px; max-width: 500px;">
+                    Hi, I'm <b>Emmanuel</b>. I specialize in cybersecurity, artificial intelligence, and building full-stack applications. I actively contribute to the African tech ecosystem and participate in high-stakes hackathons.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn">View My Work</a>
+                    <a href="#contact" class="btn btn-outline" onclick="document.getElementById('chat-toggle').click(); return false;">Chat with my AI</a>
+                </div>
+            </div>
+            <!-- We leave the image src empty or placeholder so Emmanuel can upload his KICC photo -->
+            <img src="{{ url_for('static', filename='pic2.jpeg') }}" alt="Emmanuel at Tech Conference" class="hero-image clickable-img" id="hero-img" onclick="openLightbox(this.src, 'Emmanuel at Tech Conference')">
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="portfolio-section">
+            <div class="terminal-box">
+                <div class="terminal-header">$ ./view_toolkit.sh</div>
+                <div class="stack-grid">
+                    {% for skill in skills %}
+                    <span class="stack-badge">{{ skill.name }}</span>
+                    {% else %}
+                    <span class="stack-badge">Skills updating...</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section class="portfolio-section" id="projects">
+            <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 40px; color:#171a20;">Featured Projects</h2>
+            <div class="grid-3">
+                {% for project in projects %}
+                <div class="card">
+                    {% if project.image_url %}
+                    <img src="{{ project.image_url }}" alt="{{ project.title }}" class="card-img">
+                    {% else %}
+                    <div style="width:100%; height:200px; background:#f0f2f5; display:flex; align-items:center; justify-content:center; color:#aab0b8;">Project Image</div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h3 class="card-title">{{ project.title }}</h3>
+                        <p class="card-desc">{{ project.description }}</p>
+                        {% if project.link %}
+                        <a href="{{ project.link }}" target="_blank" class="card-link">View Project &rarr;</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <p style="color:#6e727a; font-style:italic;">Projects are currently being updated via the CMS...</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Events & Community -->
+        <section class="portfolio-section" id="events">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2 style="font-size: 32px; font-weight: 700; color:#171a20; margin-bottom: 12px;">Community & Leadership</h2>
+                <p style="color:#6e727a; font-size:16px; max-width:600px; margin:0 auto;">Connecting with tech leaders and collaborating in high-stakes hackathons to push the boundaries of cybersecurity and AI in Africa.</p>
+            </div>
+
+            <div class="grid-3">
+                {% for event in events %}
+                <div class="card clickable-img" style="display:flex; flex-direction:column;" onclick="openLightbox('{{ event.image_url }}', '{{ event.title }} - {{ event.description[:50] }}...')">
+                    {% if event.image_url %}
+                    <img src="{{ event.image_url }}" alt="{{ event.title }}" style="width:100%; height:220px; object-fit:cover; border-bottom:1px solid #e8e8e8;">
+                    {% else %}
+                    <div style="width:100%; height:220px; background:#f0f2f5; display:flex; align-items:center; justify-content:center; color:#aab0b8; border-bottom:1px solid #e8e8e8;">Event Image</div>
+                    {% endif %}
+                    <div class="card-body" style="flex:1;">
+                        <h3 class="card-title">{{ event.title }}</h3>
+                        {% if event.date %}
+                        <p style="font-size:13px; color:#aab0b8; font-weight:500; margin-bottom:12px;">{{ event.date }}</p>
+                        {% endif %}
+                        <p class="card-desc">{{ event.description }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <p style="color:#6e727a; font-style:italic;">Events are currently being updated via the CMS...</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Lifestyle & Hobbies Grid -->
+        <section class="portfolio-section" id="about">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2 style="font-size: 32px; font-weight: 700; color:#171a20; margin-bottom: 12px;">Beyond the Code</h2>
+                <p style="color:#6e727a; font-size:16px; max-width:600px; margin:0 auto;">When I'm not hacking or building AI, I'm likely traveling, exploring nice cafes, or playing chess.</p>
+            </div>
+            
+            <div class="masonry-grid">
+                <!-- Original hardcoded photos -->
+                <div class="masonry-item h-30">
+                    <img src="{{ url_for('static', filename='pic5.jpeg') }}" alt="Cafe Work" class="clickable-img" onclick="openLightbox(this.src, 'Exploring nice cafes & working remotely')">
+                </div>
+                <div class="masonry-item h-20">
+                    <img src="{{ url_for('static', filename='pic6.jpeg') }}" alt="Outdoor Terrace" class="clickable-img" onclick="openLightbox(this.src, 'Me and the pals')">
+                </div>
+                <div class="masonry-item h-25">
+                    <img src="{{ url_for('static', filename='pic1.jpeg') }}" alt="Playing Chess" class="clickable-img" onclick="openLightbox(this.src, 'A good pic on a nice day')">
+                </div>
+                <div class="masonry-item h-30">
+                    <img src="{{ url_for('static', filename='pic3.jpeg') }}" alt="Laptop Working" class="clickable-img" onclick="openLightbox(this.src, 'Deep focus mode')">
+                </div>
+                <div class="masonry-item h-20">
+                    <img src="{{ url_for('static', filename='pic9.jpeg') }}" alt="Travel" class="clickable-img" onclick="openLightbox(this.src, 'Traveling and experiencing new places')">
+                </div>
+                <!-- Additional photos added from the CMS -->
+                {% for img in lifestyle_images %}
+                <div class="masonry-item {{ loop.cycle('h-30', 'h-20', 'h-25', 'h-30', 'h-20') }}">
+                    <img src="{{ img.image_url }}" alt="{{ img.caption }}" class="clickable-img" onclick="openLightbox(this.src, '{{ img.caption }}')">
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Contact Me -->
+        <section class="portfolio-section" id="contact" style="text-align:center; padding-bottom:80px;">
+            <h2 style="font-size: 32px; font-weight: 700; color:#171a20; margin-bottom: 12px;">Let's Connect</h2>
+            <p style="color:#6e727a; font-size:16px; max-width:500px; margin:0 auto 40px;">Have a project in mind or just want to say hello? Find me on any of these platforms.</p>
+            <div style="display:flex; gap:24px; justify-content:center; align-items:center; flex-wrap:wrap;">
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/in/emmanuel-kibet-31848a38b/" target="_blank" title="LinkedIn" style="display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#171a20; color:#fff; transition:all 0.3s ease; text-decoration:none;" onmouseover="this.style.background='#0a66c2'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#171a20'; this.style.transform='translateY(0)'">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <!-- X / Twitter -->
+                <a href="https://x.com/3_mmanv3l" target="_blank" title="X (Twitter)" style="display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#171a20; color:#fff; transition:all 0.3s ease; text-decoration:none;" onmouseover="this.style.background='#000'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#171a20'; this.style.transform='translateY(0)'">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/3_mma_nv3l/" target="_blank" title="Instagram" style="display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#171a20; color:#fff; transition:all 0.3s ease; text-decoration:none;" onmouseover="this.style.background='#E4405F'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#171a20'; this.style.transform='translateY(0)'">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+                <!-- WakaTime -->
+                <a href="https://wakatime.com/@Convexkarma" target="_blank" title="WakaTime" style="display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#171a20; color:#fff; transition:all 0.3s ease; text-decoration:none;" onmouseover="this.style.background='#2595ff'; this.style.transform='translateY(-4px)'" onmouseout="this.style.background='#171a20'; this.style.transform='translateY(0)'">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.824a9.176 9.176 0 110 18.352 9.176 9.176 0 010-18.352zm-1.2 4.8a.9.9 0 00-.78.45l-2.4 4.2a.9.9 0 001.56.9l2.4-4.2a.9.9 0 00-.78-1.35zm3.6 0a.9.9 0 00-.78.45l-2.4 4.2a.9.9 0 001.56.9l2.4-4.2a.9.9 0 00-.78-1.35z"/></svg>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Emmanuel Kibet. All rights reserved.</p>
+    </footer>
+
+    <!-- AI Chat Widget -->
+    <button class="chat-toggle" id="chat-toggle" title="Chat with AI"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg></button>
+
+    <div class="chat-panel" id="chat-panel">
+        <div class="chat-header">
+            <h3 style="font-size: 16px; font-weight: 600;">Emmanuel's AI</h3>
+            <button class="chat-close" id="chat-close">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg chat-msg--ai">Hi! I'm Emmanuel's AI assistant. Here is what I can do for you:
+
+• Tell you about his <b>skills and experience</b>
+• Provide links to his <b>social media</b>
+• <b>Send him a direct message</b>
+• <b>Navigate</b> you around the website
+• Trigger some secret <b>Easter eggs!</b>
+
+How can I help you today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything...">
+            <button class="chat-send" id="chat-send">➤</button>
+        </div>
+    </div>
+
+    <!-- Image Lightbox -->
+    <div class="lightbox" id="image-lightbox" onclick="closeLightbox()" style="flex-direction:column; padding:20px;">
+        <img id="lightbox-img" src="" alt="Full size image">
+        <p id="lightbox-caption" style="color:#fff; font-size:18px; margin-top:20px; font-weight:500; text-align:center; max-width:800px; animation: popIn 0.3s forwards;"></p>
+    </div>
+
+    <!-- The Easter Egg Modals (Hidden by default) -->
+    <div id="chad-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; padding:20px; border-radius:12px; text-align:center; max-width:90%;">
+            <h2 style="margin-bottom:16px;">Say no more.</h2>
+            <img src="https://i.imgflip.com/83p1y3.jpg" alt="Chad ChatGPT" style="max-width:100%; border-radius:8px;">
+            <br>
+            <button onclick="document.getElementById('chad-modal').style.display='none'" class="btn" style="margin-top:20px;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Lightbox Logic
+        function openLightbox(src, captionText = "") {
+            const lightbox = document.getElementById('image-lightbox');
+            const img = document.getElementById('lightbox-img');
+            const caption = document.getElementById('lightbox-caption');
+            img.src = src;
+            caption.textContent = captionText;
+            lightbox.classList.add('active');
+        }
+        function closeLightbox() {
+            document.getElementById('image-lightbox').classList.remove('active');
+        }
+
+        // AI Chat Frontend Logic
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatClose = document.getElementById('chat-close');
+        const chatPanel = document.getElementById('chat-panel');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        let conversationHistory = [];
+
+        chatToggle.addEventListener('click', () => {
+            chatPanel.classList.add('open');
+        });
+
+        chatClose.addEventListener('click', () => {
+            chatPanel.classList.remove('open');
+        });
+
+        function parseMarkdown(text) {
+            // Converts [Text](url) to clickable links
+            text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" style="color:#0a66c2; text-decoration:underline; font-weight:600;">$1</a>');
+            // Bold text
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Italic text
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            return text;
+        }
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `chat-msg ${sender === 'user' ? 'chat-msg--user' : 'chat-msg--ai'}`;
+            if (sender === 'ai') {
+                msgDiv.innerHTML = parseMarkdown(text);
+            } else {
+                msgDiv.textContent = text;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user');
+            chatInput.value = '';
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'chat-msg chat-msg--ai typing-indicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        history: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                chatMessages.removeChild(typingDiv);
+
+                if (data.reply) {
+                    appendMessage(data.reply, 'ai');
+                    conversationHistory.push({"role": "user", "content": text});
+                    conversationHistory.push({"role": "assistant", "content": data.reply});
+                }
+
+                if (data.action) {
+                    handleAIAction(data.action);
+                }
+
+            } catch (err) {
+                console.error(err);
+                chatMessages.removeChild(typingDiv);
+                appendMessage("Oops, something went wrong connecting to the AI.", 'ai');
+            }
+        }
+
+        function handleAIAction(action) {
+            if (action.type === 'navigate') {
+                window.location.href = action.url;
+            } else if (action.type === 'meme_chad') {
+                document.getElementById('chad-modal').style.display = 'flex';
+            } else if (action.type === 'meme_fsociety') {
+                document.body.classList.add('fsociety-mode');
+                alert("Hello, friend. Fsociety protocol initiated.");
+            } else if (action.type === 'meme_normal') {
+                document.body.classList.remove('fsociety-mode');
+                alert("Standard protocol restored.");
+            }
+        }
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

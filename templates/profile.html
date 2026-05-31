@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | MyApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .profile-avatar {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: #171a20;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 auto 16px;
+        }
+        .profile-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #171a20;
+            margin-bottom: 4px;
+        }
+        .profile-header p {
+            font-size: 13px;
+            color: #aab0b8;
+        }
+
+        .profile-section {
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .profile-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #171a20;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #6e727a; font-weight: 500; }
+        .info-value { color: #171a20; font-weight: 600; }
+
+        .profile-form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-top: 12px;
+        }
+        .profile-form .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .profile-form .btn-submit {
+            width: auto;
+            padding: 12px 20px;
+            font-size: 12px;
+            margin-top: 0;
+            white-space: nowrap;
+        }
+
+        .danger-zone {
+            border-color: #fecaca;
+        }
+        .danger-zone h3 { color: #b91c1c; }
+        .danger-text {
+            font-size: 13px;
+            color: #6e727a;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container { padding: 24px 20px; }
+            .profile-form { flex-direction: column; }
+            .profile-form .btn-submit { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="menu-container">
+            <a href="{{ url_for('home') }}" class="brand-name">Emmanuel Kibet</a>
+            <ul class="nav-lists">
+                <li><a href="{{ url_for('home') }}" class="nav-link" target="_blank" style="color:#22c55e;">View Portfolio</a></li>
+                <li><a href="{{ url_for('dashboard') }}" class="nav-link">← Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}" class="nav-link btn-danger">Log Out</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">{{ user.username[0]|upper }}</div>
+                <h1>{{ user.username }}</h1>
+                <p>Member since {{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'today' }}</p>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                <div class="flash-msg {% if 'success' in msg.lower() %}success{% endif %}" style="margin-bottom:20px;">
+                    {{ msg }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Account Info -->
+            <div class="profile-section">
+                <h3>Account Info</h3>
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value">{{ user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total Logins</span>
+                    <span class="info-value">{{ user.login_count or 0 }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Last Login</span>
+                    <span class="info-value">{{ user.last_login.strftime('%b %d, %Y at %H:%M UTC') if user.last_login else 'Now' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Messages Sent</span>
+                    <span class="info-value">{{ msg_count }}</span>
+                </div>
+            </div>
+
+            <!-- Change Username -->
+            <div class="profile-section">
+                <h3>Change Username</h3>
+                <form method="POST" class="profile-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="change_username">
+                    <div class="form-group">
+                        <label for="new_username">New Username</label>
+                        <input type="text" id="new_username" name="new_username" placeholder="Enter new username" required minlength="3">
+                    </div>
+                    <button type="submit" class="btn-submit">Update</button>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="profile-section">
+                <h3>Change Password</h3>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" placeholder="Enter current password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" id="new_password" name="new_password" placeholder="Enter new password" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-submit">Update Password</button>
+                </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="profile-section danger-zone">
+                <h3><svg width="20" height="20" style="display:inline;vertical-align:text-bottom;margin-right:6px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Danger Zone</h3>
+                <p class="danger-text">Deleting your account is permanent. All your data will be removed and cannot be recovered.</p>
+                <form method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="delete_account">
+                    <button type="submit" class="btn btn-danger" style="font-size:13px;">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MyApp</p>
+    </footer>
+</body>
+</html>

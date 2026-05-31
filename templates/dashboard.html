@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Dashboard | MyApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="menu-container">
+            <a href="{{ url_for('home') }}" class="brand-name">Emmanuel Kibet</a>
+            <ul class="nav-lists">
+                <li><a href="{{ url_for('home') }}" class="nav-link" target="_blank" style="color:#22c55e;">View Portfolio</a></li>
+                <li><a href="{{ url_for('profile') }}" class="nav-link">Profile</a></li>
+                {% if is_admin %}
+                <li>
+                    <a href="{{ url_for('messages') }}" class="nav-link">
+                        <svg width="18" height="18" style="display:inline;vertical-align:text-bottom;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> Messages{% if unread_count > 0 %} <span class="badge">{{ unread_count }}</span>{% endif %}
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{{ url_for('logout') }}" class="nav-link btn-danger">Log Out</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <div class="dashboard">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h1>Welcome back, {{ name }}</h1>
+                <p>You're logged into your secure dashboard. This page is protected — only authenticated users can access it.</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>
+                    <div class="stat-label">Status</div>
+                    <div class="stat-value" style="color:#22c55e;">Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></div>
+                    <div class="stat-label">Total Logins</div>
+                    <div class="stat-value">{{ login_count }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                    <div class="stat-label">Session</div>
+                    <div class="stat-value" id="session-timer" style="font-size:18px;">0m 00s</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
+                    <div class="stat-label">Member Since</div>
+                    <div class="stat-value" style="font-size:16px;">{{ created_at.strftime('%b %d, %Y') if created_at else 'Today' }}</div>
+                </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="activity-panel">
+                <h3>Recent Activity</h3>
+                <div class="activity-item">
+                    <div class="activity-dot activity-dot--green"></div>
+                    <span class="activity-text">Logged in successfully (login #{{ login_count }})</span>
+                    <span class="activity-time">Just now</span>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-dot activity-dot--blue"></div>
+                    <span class="activity-text">Dashboard accessed</span>
+                    <span class="activity-time">Just now</span>
+                </div>
+                {% if login_count > 1 and last_login %}
+                <div class="activity-item">
+                    <div class="activity-dot activity-dot--purple"></div>
+                    <span class="activity-text">Previous login recorded</span>
+                    <span class="activity-time">{{ last_login.strftime('%b %d, %H:%M UTC') }}</span>
+                </div>
+                {% endif %}
+                <div class="activity-item">
+                    <div class="activity-dot activity-dot--purple"></div>
+                    <span class="activity-text">Account created</span>
+                    <span class="activity-time">{{ created_at.strftime('%b %d, %Y') if created_at else '' }}</span>
+                </div>
+            </div>
+
+            <!-- Manage Portfolio (CMS) -->
+            <div style="margin-top:40px; display:flex; gap:20px; flex-wrap:wrap;">
+                
+                <!-- Add Project Form -->
+                <div class="activity-panel" style="flex:1; min-width:300px;">
+                    <h3>Add New Project</h3>
+                    <form method="POST" action="{{ url_for('add_project') }}" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="text" name="title" placeholder="Project Title" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <textarea name="description" placeholder="Project Description" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px; min-height:80px;"></textarea>
+                        <input type="text" name="image_url" placeholder="Image URL (optional)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <input type="text" name="link" placeholder="Project Link URL (optional)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <button type="submit" class="btn" style="width:100%;">Add Project</button>
+                    </form>
+                </div>
+
+                <!-- Add Event Form -->
+                <div class="activity-panel" style="flex:1; min-width:300px;">
+                    <h3>Add New Event</h3>
+                    <form method="POST" action="{{ url_for('add_event') }}" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="text" name="title" placeholder="Event Title" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <textarea name="description" placeholder="Event Description" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px; min-height:80px;"></textarea>
+                        <input type="text" name="image_url" placeholder="Image URL (optional)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <input type="text" name="date" placeholder="Event Date (e.g., Oct 2023)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <button type="submit" class="btn" style="width:100%;">Add Event</button>
+                    </form>
+                    </form>
+                </div>
+                
+                <div class="activity-panel" style="padding: 24px; display:flex; flex-direction:column; gap:16px;">
+                    <h3 style="margin:0;">Add Lifestyle Photo</h3>
+                    <p style="color:#6e727a; font-size:14px; margin:0;">Add photos for the 'Beyond the Code' masonry grid.</p>
+                    <form method="POST" action="{{ url_for('add_lifestyle') }}" style="display:flex; flex-direction:column; gap:12px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="text" name="image_url" placeholder="Image URL (e.g. /static/pic5.jpeg)" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <input type="text" name="caption" placeholder="Caption (e.g. Exploring nice cafes)" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <button type="submit" class="btn" style="width:100%;">Add Photo</button>
+                    </form>
+                </div>
+                
+                <!-- Add Skill Form -->
+                <div class="activity-panel" style="flex:1; min-width:300px;">
+                    <h3>Add Tech Skill</h3>
+                    <form method="POST" action="{{ url_for('add_skill') }}" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="text" name="name" placeholder="Skill Name (e.g. React.js)" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                        <button type="submit" class="btn" style="width:100%;">Add Skill</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Manage Existing Projects -->
+            <div style="margin-top:40px;">
+                <h3>Manage Existing Projects</h3>
+                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                    {% for project in projects %}
+                    <div class="activity-panel" style="padding:16px;">
+                        <form method="POST" action="{{ url_for('edit_project', project_id=project.id) }}" style="display:flex; flex-direction:column; gap:12px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div style="display:flex; gap:12px; align-items:center; justify-content:space-between;">
+                                <h4 style="margin:0; font-size:16px;">Project: {{ project.title }}</h4>
+                                <button type="button" onclick="if(confirm('Are you sure you want to delete this project?')) { document.getElementById('delete-form-{{ project.id }}').submit(); }" class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; padding:6px 12px; font-size:12px;">Delete</button>
+                            </div>
+                            <input type="text" name="title" value="{{ project.title }}" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <textarea name="description" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px; min-height:60px;">{{ project.description }}</textarea>
+                            <input type="text" name="image_url" value="{{ project.image_url or '' }}" placeholder="Image URL (optional)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <input type="text" name="link" value="{{ project.link or '' }}" placeholder="Project Link URL (optional)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <button type="submit" class="btn">Save Changes</button>
+                        </form>
+                        <form id="delete-form-{{ project.id }}" method="POST" action="{{ url_for('delete_project', project_id=project.id) }}" style="display:none;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                    </div>
+                    {% else %}
+                    <p style="color:#6e727a;">No projects created yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Manage Existing Events -->
+            <div style="margin-top:40px;">
+                <h3>Manage Existing Events</h3>
+                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                    {% for event in events %}
+                    <div class="activity-panel" style="padding:16px;">
+                        <form method="POST" action="{{ url_for('edit_event', event_id=event.id) }}" style="display:flex; flex-direction:column; gap:12px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div style="display:flex; gap:12px; align-items:center; justify-content:space-between;">
+                                <h4 style="margin:0; font-size:16px;">Event: {{ event.title }}</h4>
+                                <button type="button" onclick="if(confirm('Are you sure you want to delete this event?')) { document.getElementById('delete-event-form-{{ event.id }}').submit(); }" class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; padding:6px 12px; font-size:12px;">Delete</button>
+                            </div>
+                            <input type="text" name="title" value="{{ event.title }}" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <textarea name="description" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px; min-height:60px;">{{ event.description }}</textarea>
+                            <input type="text" name="image_url" value="{{ event.image_url or '' }}" placeholder="Image URL (optional)" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <input type="text" name="date" value="{{ event.date or '' }}" placeholder="Event Date" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <button type="submit" class="btn">Save Changes</button>
+                        </form>
+                        <form id="delete-event-form-{{ event.id }}" method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" style="display:none;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                    </div>
+                    {% else %}
+                    <p style="color:#6e727a;">No events created yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Manage Lifestyle Photos -->
+            <div style="margin-top:40px;">
+                <h3>Manage Lifestyle Photos</h3>
+                <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+                    {% for img in lifestyle_images %}
+                    <div class="activity-panel" style="padding:16px;">
+                        <form method="POST" action="{{ url_for('edit_lifestyle', img_id=img.id) }}" style="display:flex; flex-direction:column; gap:12px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div style="display:flex; gap:12px; align-items:center; justify-content:space-between;">
+                                <h4 style="margin:0; font-size:16px;">Photo {{ img.id }}</h4>
+                                <button type="button" onclick="if(confirm('Are you sure you want to delete this photo?')) { document.getElementById('delete-img-form-{{ img.id }}').submit(); }" class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; padding:6px 12px; font-size:12px;">Delete</button>
+                            </div>
+                            <img src="{{ img.image_url }}" alt="Thumbnail" style="height:100px; width:auto; border-radius:4px; object-fit:cover;">
+                            <input type="text" name="image_url" value="{{ img.image_url }}" required placeholder="Image URL" style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <input type="text" name="caption" value="{{ img.caption or '' }}" placeholder="Caption" required style="padding:10px; border:1px solid #e8e8e8; border-radius:6px;">
+                            <button type="submit" class="btn">Save Changes</button>
+                        </form>
+                        <form id="delete-img-form-{{ img.id }}" method="POST" action="{{ url_for('delete_lifestyle', img_id=img.id) }}" style="display:none;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        </form>
+                    </div>
+                    {% else %}
+                    <p style="color:#6e727a;">No lifestyle photos created yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Manage Tech Skills -->
+            <div style="margin-top:40px;">
+                <h3>Manage Tech Skills</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:16px;">
+                    {% for skill in skills %}
+                    <div class="activity-panel" style="padding:16px; display:flex; align-items:center; gap:16px;">
+                        <span style="font-weight:600; font-size:14px;">{{ skill.name }}</span>
+                        <form method="POST" action="{{ url_for('delete_skill', skill_id=skill.id) }}" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" onclick="return confirm('Delete this skill?')" class="btn btn-outline" style="border-color:#ef4444; color:#ef4444; padding:4px 8px; font-size:11px;">✕</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <p style="color:#6e727a;">No skills added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 MyApp</p>
+    </footer>
+
+    <!-- AI Chat Widget -->
+    <button class="chat-toggle" id="chat-toggle" title="Chat with AI"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg></button>
+
+    <div class="chat-panel" id="chat-panel">
+        <div class="chat-header">
+            <div class="chat-header-title">
+                <span class="dot-online"></span>
+                AI Assistant
+            </div>
+            <button class="chat-close" id="chat-close">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg chat-msg--ai">Hey {{ name }}! I can help you with:
+• Navigating the CMS
+• Testing portfolio links
+Just ask!</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Try: change my username to ..." autocomplete="off">
+            <button class="chat-send" id="chat-send">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // Session Timer
+        const sessionStart = Date.now();
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('session-timer').textContent =
+                mins + 'm ' + secs.toString().padStart(2, '0') + 's';
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Chat Widget
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatPanel = document.getElementById('chat-panel');
+        const chatClose = document.getElementById('chat-close');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        const conversationHistory = [];
+
+        chatToggle.addEventListener('click', () => chatPanel.classList.toggle('open'));
+        chatClose.addEventListener('click', () => chatPanel.classList.remove('open'));
+
+        function parseMarkdown(text) {
+            // Converts [Text](url) to clickable links
+            text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" style="color:#0a66c2; text-decoration:underline; font-weight:600;">$1</a>');
+            // Bold text
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Italic text
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            return text;
+        }
+
+        function appendMessage(text, sender, isTyping) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg chat-msg--' + sender;
+            
+            if (isTyping) {
+                div.className += ' typing-indicator';
+                div.innerHTML = '<span></span><span></span><span></span>';
+            } else if (sender === 'ai') {
+                div.innerHTML = parseMarkdown(text);
+            } else {
+                div.textContent = text;
+            }
+            
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return div;
+        }
+
+        async function sendMessage() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+
+            appendMessage(msg, 'user');
+            conversationHistory.push({ role: 'user', content: msg });
+            chatInput.value = '';
+            chatSend.disabled = true;
+
+            const typing = appendMessage('Thinking...', 'ai', true);
+
+            try {
+                const res = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        message: msg,
+                        history: conversationHistory
+                    }),
+                });
+                const data = await res.json();
+                typing.remove();
+
+                appendMessage(data.reply, 'ai');
+                conversationHistory.push({ role: 'assistant', content: data.reply });
+
+                if (data.action && data.action.type === 'navigate') {
+                    setTimeout(() => { window.location.href = data.action.url; }, 1500);
+                }
+            } catch (err) {
+                typing.remove();
+                appendMessage('Something went wrong. Please try again.', 'ai');
+            }
+
+            chatSend.disabled = false;
+            chatInput.focus();
+        }
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
