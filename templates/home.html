@@ -60,21 +60,51 @@
             border: 1px solid #e8e8e8;
             border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.1);
         }
         .card-img {
             width: 100%;
             height: 200px;
             object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .card:hover .card-img {
+            transform: scale(1.05);
         }
         .card-body { padding: 24px; }
         .card-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #171a20; }
         .card-desc { font-size: 14px; color: #6e727a; line-height: 1.6; margin-bottom: 16px; }
-        .card-link { font-size: 14px; font-weight: 600; color: #171a20; text-decoration: none; }
+        .card-link { font-size: 14px; font-weight: 600; color: #171a20; text-decoration: none; transition: color 0.2s; }
+        .card-link:hover { color: #0a66c2; }
+        /* Clickable project card wrapper */
+        .card-clickable {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 12px;
+            outline: none;
+        }
+        .card-clickable:hover .card-title,
+        .card-clickable:focus .card-title {
+            color: #0a66c2;
+        }
+        .card-clickable .card-link-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #171a20;
+            transition: gap 0.3s ease, color 0.2s;
+        }
+        .card-clickable:hover .card-link-label {
+            color: #0a66c2;
+            gap: 10px;
+        }
         
         .masonry-grid {
             display: grid;
@@ -198,7 +228,23 @@
             <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 40px; color:#171a20;">Featured Projects</h2>
             <div class="grid-3">
                 {% for project in projects %}
-                <div class="card">
+                {% if project.link %}
+                <a href="{{ project.link }}" target="_blank" rel="noopener noreferrer" class="card-clickable" id="project-card-{{ loop.index }}">
+                    <div class="card">
+                        {% if project.image_url %}
+                        <img src="{{ project.image_url }}" alt="{{ project.title }}" class="card-img">
+                        {% else %}
+                        <div style="width:100%; height:200px; background:#f0f2f5; display:flex; align-items:center; justify-content:center; color:#aab0b8;">Project Image</div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h3 class="card-title">{{ project.title }}</h3>
+                            <p class="card-desc">{{ project.description }}</p>
+                            <span class="card-link-label">View Project <span>&rarr;</span></span>
+                        </div>
+                    </div>
+                </a>
+                {% else %}
+                <div class="card" id="project-card-{{ loop.index }}">
                     {% if project.image_url %}
                     <img src="{{ project.image_url }}" alt="{{ project.title }}" class="card-img">
                     {% else %}
@@ -207,11 +253,9 @@
                     <div class="card-body">
                         <h3 class="card-title">{{ project.title }}</h3>
                         <p class="card-desc">{{ project.description }}</p>
-                        {% if project.link %}
-                        <a href="{{ project.link }}" target="_blank" class="card-link">View Project &rarr;</a>
-                        {% endif %}
                     </div>
                 </div>
+                {% endif %}
                 {% else %}
                 <p style="color:#6e727a; font-style:italic;">Projects are currently being updated via the CMS...</p>
                 {% endfor %}
