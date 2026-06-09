@@ -155,7 +155,13 @@ with app.app_context():
             Skill(name='Nmap'),
             Skill(name='Proxychains'),
             Skill(name='John the Ripper'),
-            Skill(name='Cybersecurity Operations')
+            Skill(name='C'),
+            Skill(name='Rust'),
+            Skill(name='Javascript'),
+            Skill(name='Bash'),
+            Skill(name='Html'),
+            Skill(name='Docker'),
+            Skill(name='Git')
         ]
         db.session.bulk_save_objects(skills)
         db.session.commit()
